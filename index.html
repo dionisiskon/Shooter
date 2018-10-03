@@ -50,6 +50,7 @@ body {
 			game.load.image('spacepirates','assets/enemies/enemy2.png');
 			game.load.audio('bmusic','assets/sounds/level1.mp3');
 			game.load.audio('lasers','assets/sounds/laser6.mp3');
+			game.load.audio('boom','assets/sounds/explosion.mp3');
 			game.load.spritesheet('explosion', '/assets/explode.png', 128, 128);
 
 		}
@@ -92,6 +93,7 @@ body {
 			villains.setAll('angle', 270);
 			villains.forEach(function(enemy){
         	addEnemyEmitterTrail(enemy);
+			enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
         	enemy.events.onKilled.add(function(){
 				enemy.trail.kill();
 				});
@@ -183,6 +185,7 @@ body {
 			
 			//  Check collisions
     		game.physics.arcade.overlap(player, villains, shipCollide, null, this);
+			game.physics.arcade.overlap(villains, bullets, hitEnemy, null, this);
 		}
 
 		function render() {
@@ -264,7 +267,21 @@ body {
 			explosion.alpha = 0.7;
 			explosion.play('explosion', 30, false, true);
 			enemy.kill();
-}
+			booms=game.add.audio('boom');
+			booms.play();
+		}
+		
+		function hitEnemy(enemy, bullet) {
+		var explosion = explosions.getFirstExists(false);
+		explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+		explosion.body.velocity.y = enemy.body.velocity.y;
+		explosion.alpha = 0.7;
+		explosion.play('explosion', 30, false, true);
+		enemy.kill();
+		bullet.kill();
+		booms=game.add.audio('boom');
+		booms.play();
+		}
 	</script>
 </body>
 </html>
