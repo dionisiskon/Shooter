@@ -45,6 +45,9 @@ body {
 			game.load.image('starfield', 'assets/starfield.png');
 			game.load.image('ship', 'assets/ship.png');
 			game.load.image('bullet', 'assets/bullets/bullet.png');
+			game.load.image('enemy','assets/enemies/enemy2.png');
+			game.load.audio('bmusic','assets/sounds/level1.mp3');
+			game.load.audio('lasers','assets/sounds/laser6.mp3');
 
 		}
 
@@ -87,6 +90,9 @@ body {
 			shipTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000,
 					Phaser.Easing.Quintic.Out);
 			shipTrail.start(false, 5000, 10);
+			music=game.add.audio('bmusic');
+			music.loop=true;
+			music.play();
 
 		}
 
@@ -160,6 +166,8 @@ body {
 					game.physics.arcade.velocityFromAngle(bullet.angle,
 							BULLET_SPEED, bullet.body.velocity);
 					bullet.body.velocity.y += player.body.velocity.y;
+					bulletsound=game.add.audio('lasers');
+					bulletsound.play();
 
 					bulletTimer = game.time.now + BULLET_SPACING;
 				}
