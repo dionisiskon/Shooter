@@ -399,9 +399,8 @@ body {
                 }
 
               //  Kill enemies once they go off screen
-              if (this.x < 0) {
+              if (this.x < -game.width-100) {
                 this.kill();
-                this.x = -20 ;
               }
             };
         }
