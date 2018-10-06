@@ -60,6 +60,7 @@ body {
 			game.load.audio('lasers','assets/sounds/laser6.mp3');
 			game.load.audio('boom','assets/sounds/explosion.mp3');
 			game.load.spritesheet('explosion', '/assets/explode.png', 128, 128);
+			game.load.bitmapFont('Sp@Ce','/assets/Sp@Ce/Sp@Ce.png','/assets/Sp@Ce/Sp@Ce.fnt');
 
 		}
 
@@ -144,11 +145,6 @@ body {
 			//  And some controls to play the game with
 			cursors = game.input.keyboard.createCursorKeys();
 			fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-			
-			 //  Game over text
-    		gameOver = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER!', { font: '84px Arial', fill: '#fff' });
-			gameOver.anchor.setTo(0.5, 0.5);
-    		gameOver.visible = false;
 
 			//  Add an emitter for the ship's trail
 			shipTrail = game.add.emitter(player.x - 20, player.y, 400);
@@ -174,13 +170,14 @@ body {
 			}); 
 			
 			//  Shield stat
-			shield = game.add.text(game.world.width - 150, 10, 'Shield: ' + player.health +'%', { font: '20px Arial', fill: '#fff' });
+			shield = game.add.bitmapText(game.world.width - 350, 10, 'Sp@Ce', '' + player.health +'%', 50);
 			shield.render = function () {
 			shield.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 			};
+			shield.render();
 			
 			//  Score
-			scoreText = game.add.text(10, 10, '', { font: '20px Arial', fill: '#fff' });
+			scoreText = game.add.bitmapText(10, 10, 'Sp@Ce', '', 50);
 			scoreText.render = function () {
 				scoreText.text = 'Score: ' + score;
 			};
@@ -190,6 +187,12 @@ body {
 			music=game.add.audio('bmusic');
 			music.loop=true;
 			music.play();
+
+			 //  Game over text
+    		gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'GAME OVER!', 110);
+   	    	gameOver.x = gameOver.x - gameOver.textWidth / 2;
+            gameOver.y = gameOver.y - gameOver.textHeight / 3;
+    		gameOver.visible = false;
 
 		}
 
@@ -366,9 +369,9 @@ body {
             };
         }
     
-   //  Send another wave soon
-   	Enemy2LaunchTimer = game.time.events.add(timeBetweenWaves, launch2Enemy);
-}
+   		//  Send another wave soon
+   		Enemy2LaunchTimer = game.time.events.add(timeBetweenWaves, launch2Enemy);
+	}
 
 		function addEnemyEmitterTrail(enemy) {
 			var enemyTrail = game.add.emitter(enemy.x, player.y - 10, 100);
@@ -411,13 +414,14 @@ body {
 		booms.play();
 		}
 		
-		+function restart () {
+		function restart () {
 			//  Reset the enemies
 			villains.callAll('kill');
-			game.time.events.remove(EnemyLaunchTimer);
-			game.time.events.add(1000, launchEnemy);
 			villains1.callAll('kill');
-    		game.time.events.remove(Enemy2LaunchTimer);
+			game.time.events.remove(EnemyLaunchTimer);
+			game.time.events.remove(Enemy2LaunchTimer);
+			game.time.events.add(1000, launchEnemy);
+			game.time.events.add(1000, launch2Enemy);
 			//  Revive the player
 			player.revive();
 			player.health = 100;
