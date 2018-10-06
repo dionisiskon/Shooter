@@ -25,7 +25,7 @@ body {
 		var player;
 		var villains;
 		var villains1;
-		var ΕnemyBullets;
+		var enemyBullets;
 		var starfield;
 		var cursors;
 		var bank;
@@ -125,17 +125,17 @@ body {
 			// Enemy Spaceships 2
 
 			//  Blue enemy's bullets
-    		EnemyBullets = game.add.group();
-    		EnemyBullets.enableBody = true;
-    		EnemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-    		EnemyBullets.createMultiple(30, 'EnemyBullet');
-    		EnemyBullets.callAll('crop', null, {x: 90, y: 0, width: 90, height: 70});
-    		EnemyBullets.setAll('alpha', 0.9);
-    		EnemyBullets.setAll('anchor.x', 0.5);
-    		EnemyBullets.setAll('anchor.y', 0.5);
-    		EnemyBullets.setAll('outOfBoundsKill', true);
-    		EnemyBullets.setAll('checkWorldBounds', true);
-    		EnemyBullets.forEach(function(enemy){
+    		enemyBullets = game.add.group();
+    		enemyBullets.enableBody = true;
+    		enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    		enemyBullets.createMultiple(30, 'EnemyBullet');
+    		enemyBullets.callAll('crop', null, {x: 90, y: 0, width: 90, height: 70});
+    		enemyBullets.setAll('alpha', 0.9);
+    		enemyBullets.setAll('anchor.x', 0.5);
+    		enemyBullets.setAll('anchor.y', 0.5);
+    		enemyBullets.setAll('outOfBoundsKill', true);
+    		enemyBullets.setAll('checkWorldBounds', true);
+    		enemyBullets.forEach(function(enemy){
        	    enemy.body.setSize(20, 20);
         });
 			
@@ -267,7 +267,7 @@ body {
 			game.physics.arcade.overlap(player, villains1, shipCollide, null, this);
 			game.physics.arcade.overlap(villains1, bullets, hitEnemy, null, this);
 
-			game.physics.arcade.overlap(EnemyBullets, player, enemyHitsPlayer, null, this);
+			game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
 			//  Game over?
 			if (! player.alive && gameOver.visible === false) {
 				gameOver.visible = true;
@@ -372,19 +372,18 @@ body {
             	enemy.bullets = 1;
             	enemy.lastShot = 0;
         
-			}	
               //  Update function for each enemy
               enemy.update = function(){
               //  Wave movement
               this.body.y = this.startingX + Math.sin((this.x) / frequency) * spread;
 
               //  Squish and rotate ship for illusion of "banking"
-              bank = Math.cos((this.x + 60) / frequency)
+              bank = Math.cos((this.y + 60) / frequency)
               this.scale.y = 0.5 - Math.abs(bank) / 8;
               this.angle = 180 - bank * 2;
 
                //  Fire
-               enemyBullet = EnemyBullets.getFirstExists(false);
+               enemyBullet = enemyBullets.getFirstExists(false);
               if (enemyBullet &&
                     this.alive &&
                     this.bullets &&
@@ -399,11 +398,13 @@ body {
                 }
 
               //  Kill enemies once they go off screen
-              if (this.x < -game.width-100) {
+              if (this.y > game.height + 200) {
                 this.kill();
+                this.y = -20
               }
             };
         }
+    }
     
    		//  Send another wave soon
    		Enemy2LaunchTimer = game.time.events.add(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 4000), launch2Enemy);
@@ -476,14 +477,15 @@ body {
 		function restart () {
 			//  Reset the enemies
 			villains.callAll('kill');
-			villains1.callAll('kill');
 			game.time.events.remove(EnemyLaunchTimer);
 			game.time.events.remove(Enemy2LaunchTimer);
 			game.time.events.add(1000, launchEnemy);
 			villains1.callAll('kill');
-			EnemyBullets.callAll('kill');
+			enemyBullets.callAll('kill');
 			game.time.events.remove(Enemy2LaunchTimer);
-			game.time.events.add(1000, launch2Enemy);
+			
+			villains1.callAll('kill');
+			game.time.events.remove(Enemy2LaunchTimer);
 			//  Revive the player
 			player.revive();
 			player.health = 100;
