@@ -132,9 +132,9 @@ body {
 			game.time.events.add(1000, launchEnemy);
 
 			//  Enemy Spaceships's 2 bullets
-    		enemyBullets = game.add.group();
-    		enemyBullets.enableBody = true;
-    		enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+    			enemyBullets = game.add.group();
+    			enemyBullets.enableBody = true;
+    			enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
    			enemyBullets.createMultiple(30, 'EnemyBullet');
    			enemyBullets.callAll('crop', null, {x: 90, y: 0, width: 90, height: 70});
    			enemyBullets.setAll('alpha', 0.9);
@@ -213,10 +213,10 @@ body {
 			music.play();
 
 			 //  Game over text
-    		gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'GAME OVER!', 110);
-   	    	gameOver.x = gameOver.x - gameOver.textWidth / 2;
-            gameOver.y = gameOver.y - gameOver.textHeight / 3;
-    		gameOver.visible = false;
+    			gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'GAME OVER!', 110);
+   	    		gameOver.x = gameOver.x - gameOver.textWidth / 2;
+            		gameOver.y = gameOver.y - gameOver.textHeight / 3;
+    			gameOver.visible = false;
 
 			}
 
@@ -267,7 +267,7 @@ body {
 			shipTrail.x = player.x - 20;
 			
 			//  Check collisions
-    		game.physics.arcade.overlap(player, villains, shipCollide, null, this);
+    			game.physics.arcade.overlap(player, villains, shipCollide, null, this);
 			game.physics.arcade.overlap(villains, bullets, hitEnemy, null, this);
 			
 			
@@ -309,21 +309,21 @@ body {
         	 if (game.time.now > bulletTimer)
         	 {
 			var BULLET_SPEED = 400;
-            var BULLET_SPACING = 250;
-            //  Grab the first bullet we can from the pool
-            var bullet = bullets.getFirstExists(false);
+           	 	var BULLET_SPACING = 250;
+            		//  Grab the first bullet we can from the pool
+            		var bullet = bullets.getFirstExists(false);
 
-            if (bullet)
-            {
-                //  And fire it
-                //  Make bullet come out of tip of ship with right angle
-                var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                bullet.reset(player.x + bulletOffset, player.y);
-                bullet.angle = player.angle;
-                game.physics.arcade.velocityFromAngle(bullet.angle, BULLET_SPEED, bullet.body.velocity);
-                bullet.body.velocity.y += player.body.velocity.y;
+            	if (bullet)
+            	{
+                	//  And fire it
+                	//  Make bullet come out of tip of ship with right angle
+                	var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                	bullet.reset(player.x + bulletOffset, player.y);
+                	bullet.angle = player.angle;
+                	game.physics.arcade.velocityFromAngle(bullet.angle, BULLET_SPEED, bullet.body.velocity);
+                	bullet.body.velocity.y += player.body.velocity.y;
 
-                bulletTimer = game.time.now + BULLET_SPACING;
+                	bulletTimer = game.time.now + BULLET_SPACING;
             	}
         	}
         	break;
@@ -498,7 +498,7 @@ body {
 
     		//  Weapon upgrade
      		if (score > 4000 && player.weaponLevel < 2) {
-      	    player.weaponLevel = 2;
+      	    	player.weaponLevel = 2;
      			}
  			}	
 		
