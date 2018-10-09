@@ -18,7 +18,7 @@ preload:function() {
 			game.load.spritesheet('explosion', 'assets/explode.png', 128, 128);
 
 			// My Font
-			game.load.bitmapFont('Sp@Ce','assets/Sp@Ce/Sp@Ce.png','/assets/Sp@Ce/Sp@Ce.fnt');
+			game.load.bitmapFont('Sp@Ce','assets/Sp@Ce/Sp@Ce.png','assets/Sp@Ce/Sp@Ce.fnt');
 	},
 
 	create:function() {
