@@ -6,7 +6,7 @@ preload:function() {
 			game.load.image('bullet', 'assets/bullets/bullet.png');
 			game.load.image('spacepirates','assets/enemies/enemy2.png');
 			game.load.image('baddies','assets/enemies/enemy3.png');
-			game.load.image('EnemyBullet', '/assets/bullets/blue-enemy-bullet.png');
+			game.load.image('EnemyBullet', 'assets/bullets/blue-enemy-bullet.png');
 
 			// Audios
 			game.load.audio('bmusic','assets/sounds/level1.mp3');
@@ -15,10 +15,10 @@ preload:function() {
 			game.load.audio('v1sound','assets/sounds/enemylaser.mp3');
 
 			// Sprites
-			game.load.spritesheet('explosion', '/assets/explode.png', 128, 128);
+			game.load.spritesheet('explosion', 'assets/explode.png', 128, 128);
 
 			// My Font
-			game.load.bitmapFont('Sp@Ce','/assets/Sp@Ce/Sp@Ce.png','/assets/Sp@Ce/Sp@Ce.fnt');
+			game.load.bitmapFont('Sp@Ce','assets/Sp@Ce/Sp@Ce.png','/assets/Sp@Ce/Sp@Ce.fnt');
 	},
 
 	create:function() {
