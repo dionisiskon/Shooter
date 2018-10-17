@@ -177,7 +177,7 @@ body {
               if (enemyBullet &&
                     this.alive &&
                     this.bullets &&
-                    this.y > game.width / 8 &&
+                    this.x < game.width &&
                     game.time.now > firingDelay + this.lastShot) {
                     this.lastShot = game.time.now;
                     this.bullets--;
