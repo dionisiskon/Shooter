@@ -12,7 +12,7 @@ preload:function() {
 			game.load.audio('bmusic','assets/sounds/level1.mp3');
 			game.load.audio('lasers','assets/sounds/laser6.mp3');
 			game.load.audio('boom','assets/sounds/explosion.mp3');
-			game.load.audio('v1sound','assets/sounds/enemylaser.mp3');
+			//game.load.audio('v1sound','assets/sounds/enemylaser.mp3');
 
 			// Sprites
 			game.load.spritesheet('explosion', 'assets/explode.png', 128, 128);
