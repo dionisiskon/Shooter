@@ -185,8 +185,8 @@ body {
                     enemyBullet.damageAmount = this.damageAmount;
                     var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
                     enemyBullet.angle = game.math.radToDeg(angle);
-                    enemys=game.add.audio('v1sound');
-					enemys.play();
+                    //enemys=game.add.audio('v1sound');
+		    //enemys.play();
                 }
 
               //  Kill enemies once they go off screen
@@ -242,32 +242,32 @@ body {
 			booms.play();
 
 			//  Pacing
-    		//  Enemies come quicker as score increases
-    		EnemySpacing *= 0.9;
+    			//  Enemies come quicker as score increases
+    			EnemySpacing *= 0.9;
    			//  Second enemies come in after a score of 1000
-    		if (!EnemyLaunched && score > 1000) {
-      		EnemyLaunched = true;
-      		launch2Enemy();
-      		//  Slows first enemies down now that there are other enemies
-      		EnemySpacing *= 2;
-    }
+    			if (!EnemyLaunched && score > 1000) {
+      				EnemyLaunched = true;
+      				launch2Enemy();
+      			//  Slows first enemies down now that there are other enemies
+      			EnemySpacing *= 2;
+    			}
 
     		//  Weapon upgrade
      		if (score > 4000 && player.weaponLevel < 2) {
-      	    	player.weaponLevel = 2;
+      	    		player.weaponLevel = 2;
      			}
- 			}	
+ 		}	
 		
 		function enemyHitsPlayer (player, bullet) {
-    		var explosion = explosions.getFirstExists(false);
-    		explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
-    		explosion.alpha = 0.7;
-    		explosion.play('explosion', 30, false, true);
-    		bullet.kill();
+    			var explosion = explosions.getFirstExists(false);
+    			explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+    			explosion.alpha = 0.7;
+    			explosion.play('explosion', 30, false, true);
+    			bullet.kill();
 
-    		player.damage(bullet.damageAmount);
-    		shield.render();
-    	}
+    			player.damage(bullet.damageAmount);
+    			shield.render();
+    		}
 		
 	
 		
@@ -295,8 +295,8 @@ body {
 			gameOver.visible = false;
 
 			//  Reset pacing
-    		EnemySpacing = 1000;
-    		EnemyLaunched = false;
+    			EnemySpacing = 1000;
+    			EnemyLaunched = false;
 
 		}
 	</script>
