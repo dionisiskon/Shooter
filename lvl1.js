@@ -8,7 +8,7 @@ var lvl1 = {
         game.load.image('baddies', 'assets/enemies/enemy3.png');
         game.load.image('EnemyBullet', 'assets/bullets/blue-enemy-bullet.png');
         game.load.image('boss', 'assets/enemies/blue-enemy.png');
-        game.load.image('deathray', 'assets/bullets/death-ray.png');
+        game.load.image('deathray', 'assets/bullets/bullet2.png');
 
         // Audios
         game.load.audio('bmusic', 'assets/sounds/level1.mp3');
@@ -122,7 +122,8 @@ var lvl1 = {
         badboss.createMultiple(1, 'boss');
         badboss.setAll('anchor.x', 0.5);
         badboss.setAll('anchor.y', 0.5);
-        badboss.setAll('angle', 0);
+        badboss.setAll('scale.x', 1);
+        badboss.setAll('scale.y', 1);
         badboss.forEach(function(enemy) {
             addEnemyEmitterTrail(enemy);
             enemy.body.setSize(enemy.width * 1, enemy.height * 1);
@@ -140,7 +141,7 @@ var lvl1 = {
         deathrays.callAll('crop', null, {
             x: 90,
             y: 0,
-            width: 90,
+            width: 100,
             height: 70
         });
         deathrays.setAll('alpha', 0.9);
@@ -264,9 +265,9 @@ var lvl1 = {
 
         // Check collision Boss
         game.physics.arcade.overlap(player, badboss, shipCollide, null, this);
-        game.physics.arcade.overlap(badboss, deathrays, hitBoss, null, this);
+        game.physics.arcade.overlap(badboss, bullets, hitBoss, null, this);
 
-        game.physics.arcade.overlap(deathrays, player, enemyHitsPlayer, null, this);
+        game.physics.arcade.overlap(player, deathrays, enemyHitsPlayer, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
         //  Game over?
         if (!player.alive && gameOver.visible === false) {

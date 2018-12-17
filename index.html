@@ -38,6 +38,7 @@
         var shield;
         var score = 0;
         var scoreText;
+        var BossDead = false;
         var EnemyLaunchTimer;
         var BossLaunched = false;
         var EnemySpacing = 1000;
@@ -53,8 +54,8 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-            game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
-            game.load.crossOrigin = 'anonymous';
+            	game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
+            	game.load.crossOrigin = 'anonymous';
 
         }
 
@@ -143,24 +144,25 @@
         }
 
         function LaunchBoss() {
-            var ENEMY_SPEED = 50;
+            var ENEMY_SPEED = 200;
             var enemy = badboss.getFirstExists(false);
             if (enemy) {
-                if (this.x > player.x + 50) {
-                    ENEMY_SPEED = 50;
+                if (enemy.x > player.x ) {
+                    ENEMY_SPEED = 200;
                 } else {
-                    ENEMY_SPEED = -50
+                    ENEMY_SPEED = -200;
                 }
-                enemy.reset(800, game.rnd.integerInRange(game.width, game.height / 2));
-                enemy.body.velocity.x = ENEMY_SPEED;
+                enemy.reset(game.width, game.height/2);
+                enemy.body.velocity.x = -25;
                 enemy.body.velocity.y = game.rnd.integerInRange(0, -25);
+                 enemy.body.drag.y = 100;
                 enemy.trail.start(false, 800, 1);
                 enemy.alive = true;
 
                 //  Set up firing
                 var bulletSpeed = 500;
-                var firingDelay = 5000;
-                enemy.bullets = 10;
+                var firingDelay = 2000;
+                enemy.bullets = 100;
                 enemy.lastShot = 0;
 
                 //  Update function for each enemy ship to update rotation etc
@@ -171,19 +173,20 @@
                     enemy.trail.y = enemy.y - 10;
 
                     //  Fire
-                    var enemyBullet1 = deathrays.getFirstExists(false);
-                    if (enemyBullet1 &&
-                        this.alive &&
-                        this.bullets) {
-                        this.lastShot = game.time.now;
-                        this.bullets--;
-                        enemyBullet1.reset(this.x, this.y + this.height / 2);
-                        enemyBullet1.damageAmount = this.damageAmount;
-                        var angle = game.physics.arcade.moveToObject(enemyBullet1, player, bulletSpeed);
-                        enemyBullet1.angle = game.math.radToDeg(angle);
-                        //enemys=game.add.audio('v1sound');
-                        //enemys.play();
-                    }
+                    var enemyBullet = deathrays.getFirstExists(false);
+                    if (enemyBullet &&
+                            this.alive &&
+                            this.bullets &&
+                            game.time.now > firingDelay + this.lastShot) {
+                            this.lastShot = game.time.now;
+                            this.bullets--;
+                            enemyBullet.reset(this.x, this.y + this.height / 2);
+                            enemyBullet.damageAmount = this.damageAmount;
+                            var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+                            enemyBullet.angle = game.math.radToDeg(angle);
+                            //enemys=game.add.audio('v1sound');
+                            //enemys.play();
+                      }
 
                     //  Kill enemies once they go off screen
                     if (enemy.x < 0) {
