@@ -1,4 +1,4 @@
-var lvl1 = {
+var lvl2 = {
     preload: function() {
         // Basic Images
         game.load.image('starfield', 'assets/starfield.png');

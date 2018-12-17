@@ -13,6 +13,7 @@
     </style>
     <script src="menu.js"></script>
     <script src="lvl1.js"></script>
+    <script src="lvl2.js"></script>
     <script src="//cdn.jsdelivr.net/phaser/2.6.2/phaser.min.js" type="text/javascript"></script>
 </head>
 
@@ -24,7 +25,7 @@
         var villains;
         var villains1;
         var badboss;
-        var bosshealth = 300;
+        var bosshealth = 500;
         var deathrays;
         var enemyBullets;
         var starfield;
@@ -54,12 +55,13 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-            	game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
-            	game.load.crossOrigin = 'anonymous';
+            game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
+            game.load.crossOrigin = 'anonymous';
 
         }
 
         game.state.add('lvl1', lvl1);
+        game.state.add('lvl2', lvl2);
         game.state.add('menu', menu);
         game.state.start('menu');
 
@@ -147,20 +149,21 @@
             var ENEMY_SPEED = 200;
             var enemy = badboss.getFirstExists(false);
             if (enemy) {
-                if (enemy.x > player.x ) {
+                if (enemy.x > player.x) {
                     ENEMY_SPEED = 200;
                 } else {
                     ENEMY_SPEED = -200;
                 }
-                enemy.reset(game.width, game.height/2);
-                enemy.body.velocity.x = -25;
+                enemy.reset(game.width, game.height / 2);
+                enemy.body.velocity.x = ENEMY_SPEED;
                 enemy.body.velocity.y = game.rnd.integerInRange(0, -25);
-                 enemy.body.drag.y = 100;
+                enemy.body.drag.y = 90;
+                enemy.body.drag.x = 90;
                 enemy.trail.start(false, 800, 1);
                 enemy.alive = true;
 
                 //  Set up firing
-                var bulletSpeed = 500;
+                var bulletSpeed = 1000;
                 var firingDelay = 2000;
                 enemy.bullets = 100;
                 enemy.lastShot = 0;
@@ -175,23 +178,25 @@
                     //  Fire
                     var enemyBullet = deathrays.getFirstExists(false);
                     if (enemyBullet &&
-                            this.alive &&
-                            this.bullets &&
-                            game.time.now > firingDelay + this.lastShot) {
-                            this.lastShot = game.time.now;
-                            this.bullets--;
-                            enemyBullet.reset(this.x, this.y + this.height / 2);
-                            enemyBullet.damageAmount = this.damageAmount;
-                            var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
-                            enemyBullet.angle = game.math.radToDeg(angle);
-                            //enemys=game.add.audio('v1sound');
-                            //enemys.play();
-                      }
-
-                    //  Kill enemies once they go off screen
-                    if (enemy.x < 0) {
-                        enemy.kill();
+                        this.alive &&
+                        this.bullets &&
+                        this.x > player.x && this.y < game.height - 50 &&
+                        game.time.now > firingDelay + this.lastShot) {
+                        this.lastShot = game.time.now;
+                        this.bullets--;
+                        enemyBullet.reset(this.x, this.y + this.height / 2);
                     }
+
+                    enemyBullet.damageAmount = this.damageAmount;
+                    var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+                    enemyBullet.angle = game.math.radToDeg(angle);
+                    //enemys=game.add.audio('v1sound');
+                    //enemys.play();
+                }
+
+                //  Kill enemies once they go off screen
+                if (enemy.x < 0) {
+                    enemy.kill();
                 }
             }
         }
@@ -204,13 +209,16 @@
             explosion.play('explosion', 30, false, true);
             bullet.kill();
             // Increase score
-            score += badboss.damageAmount * 10;
-            scoreText.render();
             booms = game.add.audio('boom');
             booms.play();
-            bosshealth = bosshealth - 40;
-            if (bosshealth == 0) {
+            bosshealth = bosshealth - 50;
+            if (bosshealth <= 0) {
+                score += badboss.damageAmount * 100;
+                scoreText.render();
                 badboss.kill();
+                restart();
+                BossDead = true;
+                text();
                 game.state.start('lvl1');
             }
         }
@@ -328,7 +336,7 @@
                 //  Slows first enemies down now that there are other enemies
                 EnemySpacing *= 2;
             };
-            if (!BossLaunched && score > 2000) {
+            if (!BossLaunched && score > 0) {
                 BossLaunched = true;
                 LaunchBoss();
                 game.time.events.remove(EnemyLaunchTimer);
@@ -352,6 +360,12 @@
             shield.render();
         }
 
+        function text() {
+            setTimeout(function() {
+                wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 110);
+                game.camera.fade('#000000');
+            }, 5000);
+        }
 
 
         function restart() {
@@ -366,6 +380,9 @@
 
             villains1.callAll('kill');
             game.time.events.remove(Enemy2LaunchTimer);
+
+            badboss.callAll('kill');
+            deathrays.callAll('kill');
             //  Revive the player
             player.weaponLevel = 1;
             player.revive();
@@ -373,6 +390,7 @@
             shield.render();
             score = 0;
             scoreText.render();
+            music.stop();
 
             //  Hide the text
             gameOver.visible = false;
@@ -381,6 +399,8 @@
             EnemySpacing = 1000;
             EnemyLaunched = false;
             BossLaunched = false;
+            BossDead = false;
+            bosshealth = 500;
         }
     </script>
 </body>
