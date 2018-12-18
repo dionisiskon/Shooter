@@ -10,7 +10,7 @@ var lvl1 = {
         game.load.image('boss', 'assets/enemies/blue-enemy.png');
         game.load.image('deathray', 'assets/bullets/bullet2.png');
         game.load.image('tripleshot', 'assets/power-ups/tripleshot.png');
-        game.load.image('dontknow', 'assets/power-ups,dontknowyet.png');
+        game.load.image('dontknow', 'assets/power-ups/dontknowyet.png');
 
         // Audios
         game.load.audio('bmusic', 'assets/sounds/level1.mp3');
