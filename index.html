@@ -29,6 +29,7 @@
         var deathrays;
         var enemyBullets;
         var starfield;
+        var triples;
         var cursors;
         var bank;
         var shipTrail;
@@ -45,7 +46,10 @@
         var EnemySpacing = 1000;
         var Enemy2LaunchTimer;
         var EnemyLaunched = false;
+        var triplebool = false;
         var gameOver;
+        var count = 0;
+
 
         var ACCLERATION = 600;
         var DRAG = 400;
@@ -55,8 +59,8 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-            game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
-            game.load.crossOrigin = 'anonymous';
+                game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
+                game.load.crossOrigin = 'anonymous';
 
         }
 
@@ -129,9 +133,9 @@
                 enemy.trail.start(false, 800, 1);
 
                 //  Update function for each enemy ship to update rotation etc
+
                 enemy.update = function() {
                     enemy.angle = 270 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
-
                     enemy.trail.x = enemy.x;
                     enemy.trail.y = enemy.y - 10;
 
@@ -177,29 +181,57 @@
 
                     //  Fire
                     var enemyBullet = deathrays.getFirstExists(false);
-                    if (enemyBullet &&
-                        this.alive &&
-                        this.bullets &&
-                        this.x > player.x && this.y < game.height - 50 &&
-                        game.time.now > firingDelay + this.lastShot) {
-                        this.lastShot = game.time.now;
+                    for (var i = 0; i < 3; i++) {
+                        if (enemyBullet &&
+                            this.alive &&
+                            this.bullets &&
+                            this.x > player.x && this.y < game.height - 50 &&
+                            game.time.now > firingDelay + this.lastShot) {
+                            this.lastShot = game.time.now;
+                            enemyBullet.reset(this.x, this.y + this.height / 2);
+                        }
+
                         this.bullets--;
-                        enemyBullet.reset(this.x, this.y + this.height / 2);
+                        enemyBullet.damageAmount = this.damageAmount;
+                        var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+                        enemyBullet.angle = game.math.radToDeg(angle);
                     }
 
-                    enemyBullet.damageAmount = this.damageAmount;
-                    var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
-                    enemyBullet.angle = game.math.radToDeg(angle);
-                    //enemys=game.add.audio('v1sound');
-                    //enemys.play();
                 }
+                //enemys=game.add.audio('v1sound');
+                //enemys.play();
+            }
 
-                //  Kill enemies once they go off screen
-                if (enemy.x < 0) {
-                    enemy.kill();
-                }
+            //  Kill enemies once they go off screen
+            if (enemy.x < 0) {
+                enemy.kill();
             }
         }
+
+        function hitPowerup(player, powerup) {
+            player.weaponLevel = 2;
+            triplebool = true;
+            powerup.kill();
+
+        }
+
+        function launchPowerup() {
+            var powerups = triples.getFirstExists(false);
+            if (powerups) {
+                powerups.reset(game.width, game.rnd.integerInRange(game.height / 2 - 200, game.height / 2 + 200));
+                powerups.velocity.x = -100;
+                powerups.body.velocity.y = game.rnd.integerInRange(0, -100);
+                powerups.body.drag.y = 100;
+            }
+
+            powerups.update = function() {
+                if (powerups.x < 0) {
+                    powerups.kill();
+                }
+            };
+        }
+
+
 
         function hitBoss(badboss, bullet) {
             var explosion = explosions.getFirstExists(false);
@@ -216,10 +248,15 @@
                 score += badboss.damageAmount * 100;
                 scoreText.render();
                 badboss.kill();
-                restart();
                 BossDead = true;
-                text();
-                game.state.start('lvl1');
+                music.stop();
+                score = 0;
+                scoreText.render();
+                setTimeout(function() {
+                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 110);
+                    game.camera.fade('#000000');
+                }, 5000);
+                game.state.start('lvl2');
             }
         }
 
@@ -283,6 +320,7 @@
                 }
             }
 
+
             //  Send another wave soon
             Enemy2LaunchTimer = game.time.events.add(game.rnd.integerInRange(timeBetweenWaves, timeBetweenWaves + 4000), launch2Enemy);
         }
@@ -325,27 +363,24 @@
             scoreText.render();
             booms = game.add.audio('boom');
             booms.play();
-
+            if (score == 200) {
+                launchPowerup();
+            }
             //  Pacing
             //  Enemies come quicker as score increases
             EnemySpacing *= 0.9;
             //  Second enemies come in after a score of 1000
-            if (!EnemyLaunched && score > 1000) {
+            if (!EnemyLaunched && score > 1500) {
                 EnemyLaunched = true;
                 launch2Enemy();
                 //  Slows first enemies down now that there are other enemies
                 EnemySpacing *= 2;
             };
-            if (!BossLaunched && score > 0) {
+            if (!BossLaunched && score > 10000) {
                 BossLaunched = true;
                 LaunchBoss();
                 game.time.events.remove(EnemyLaunchTimer);
                 game.time.events.remove(Enemy2LaunchTimer);
-            }
-
-            //  Weapon upgrade
-            if (score > 4000 && player.weaponLevel < 2) {
-                player.weaponLevel = 2;
             }
         }
 
@@ -360,14 +395,6 @@
             shield.render();
         }
 
-        function text() {
-            setTimeout(function() {
-                wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 110);
-                game.camera.fade('#000000');
-            }, 5000);
-        }
-
-
         function restart() {
             //  Reset the enemies
             villains.callAll('kill');
@@ -380,9 +407,13 @@
 
             villains1.callAll('kill');
             game.time.events.remove(Enemy2LaunchTimer);
-
+            //  Reset Boss
             badboss.callAll('kill');
             deathrays.callAll('kill');
+
+            //  Reset Powerups
+            triples.callAll('kill');
+            triplebool = false;
             //  Revive the player
             player.weaponLevel = 1;
             player.revive();
