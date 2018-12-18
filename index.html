@@ -219,7 +219,7 @@
             var powerups = triples.getFirstExists(false);
             if (powerups) {
                 powerups.reset(game.width, game.rnd.integerInRange(game.height / 2 - 200, game.height / 2 + 200));
-                powerups.velocity.x = -100;
+                powerups.body.velocity.x = -300;
                 powerups.body.velocity.y = game.rnd.integerInRange(0, -100);
                 powerups.body.drag.y = 100;
             }
