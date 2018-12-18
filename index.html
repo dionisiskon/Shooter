@@ -47,8 +47,10 @@
         var Enemy2LaunchTimer;
         var EnemyLaunched = false;
         var triplebool = false;
+        var beambool = false;
         var gameOver;
         var count = 0;
+        var powerduration = 20;
 
 
         var ACCLERATION = 600;
@@ -59,8 +61,8 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-                game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
-                game.load.crossOrigin = 'anonymous';
+            game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
+            game.load.crossOrigin = 'anonymous';
 
         }
 
@@ -118,6 +120,25 @@
                             bulletTimer = game.time.now + BULLET_SPACING;
                         }
                     }
+                    break;
+                case 3:
+                    //  To avoid them being allowed to fire too fast we set a time limit
+                    var BULLET_SPEED = 2000;
+                    //  Grab the first bullet we can from the pool
+                    var bullet = bullets.getFirstExists(false);
+
+                    if (bullet) {
+                        bullet.height = 6;
+                        //  And fire it
+                        //  Make bullet come out of tip of ship with right angle
+                        var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                        bullet.reset(player.x + bulletOffset, player.y);
+                        bullet.angle = player.angle;
+                        game.physics.arcade.velocityFromAngle(bullet.angle, BULLET_SPEED, bullet.body.velocity);
+                        bullet.body.velocity.y += player.body.velocity.y;
+                    }
+
+                    break;
             }
         }
 
@@ -212,14 +233,19 @@
             player.weaponLevel = 2;
             triplebool = true;
             powerup.kill();
-
         }
 
-        function launchPowerup() {
-            var powerups = triples.getFirstExists(false);
+        function hitPowerup1(player, powerup) {
+            player.weaponLevel = 3;
+            beambool = true;
+            powerup.kill();
+        }
+
+        function launchPowerup(power) {
+            var powerups = power.getFirstExists(false);
             if (powerups) {
                 powerups.reset(game.width, game.rnd.integerInRange(game.height / 2 - 200, game.height / 2 + 200));
-                powerups.body.velocity.x = -300;
+                powerups.body.velocity.x = -600;
                 powerups.body.velocity.y = game.rnd.integerInRange(0, -100);
                 powerups.body.drag.y = 100;
             }
@@ -348,6 +374,12 @@
             shield.render();
             booms = game.add.audio('boom');
             booms.play();
+            //  Reset Power-up if ship takes a hit
+            if (player.weaponLevel == 2 || player.weaponLevel == 3) {
+                player.weaponLevel = 1;
+                beambool = false;
+                triplebool = false;
+            }
         }
 
         function hitEnemy(enemy, bullet) {
@@ -363,8 +395,10 @@
             scoreText.render();
             booms = game.add.audio('boom');
             booms.play();
-            if (score == 200) {
-                launchPowerup();
+            if (count % 15 == 0 && count != 0 && triplebool == false && beambool == false) {
+                launchPowerup(triples);
+            } else if (count % 30 == 0 && triplebool == false && beambool == false) {
+                launchPowerup(beam);
             }
             //  Pacing
             //  Enemies come quicker as score increases
@@ -376,12 +410,14 @@
                 //  Slows first enemies down now that there are other enemies
                 EnemySpacing *= 2;
             };
+            powerduration--;
             if (!BossLaunched && score > 10000) {
                 BossLaunched = true;
                 LaunchBoss();
                 game.time.events.remove(EnemyLaunchTimer);
                 game.time.events.remove(Enemy2LaunchTimer);
             }
+            count++;
         }
 
         function enemyHitsPlayer(player, bullet) {

@@ -9,7 +9,8 @@ var lvl1 = {
         game.load.image('EnemyBullet', 'assets/bullets/blue-enemy-bullet.png');
         game.load.image('boss', 'assets/enemies/blue-enemy.png');
         game.load.image('deathray', 'assets/bullets/bullet2.png');
-        game.load.image('tripleshot','assets/power-ups/tripleshot.png');
+        game.load.image('tripleshot', 'assets/power-ups/tripleshot.png');
+        game.load.image('dontknow', 'assets/power-ups,dontknowyet.png');
 
         // Audios
         game.load.audio('bmusic', 'assets/sounds/level1.mp3');
@@ -162,8 +163,22 @@ var lvl1 = {
         triples.createMultiple(10, 'tripleshot');
         triples.setAll('anchor.x', 0.5);
         triples.setAll('anchor.y', 0.5);
+        triples.setAll('scale.x', 0.75);
+        triples.setAll('scale.y', 0.75);
         triples.setAll('outOfBoundsKill', true);
         triples.setAll('checkWorldBounds', true);
+
+        // Triple shot Power up
+        beam = game.add.group();
+        beam.enableBody = true;
+        beam.physicsBodyType = Phaser.Physics.ARCADE;
+        beam.createMultiple(10, 'dontknow');
+        beam.setAll('anchor.x', 0.5);
+        beam.setAll('anchor.y', 0.5);
+        beam.setAll('scale.x', 0.6);
+        beam.setAll('scale.y', 0.6);
+        beam.setAll('outOfBoundsKill', true);
+        beam.setAll('checkWorldBounds', true);
 
 
         //  And some controls to play the game with
@@ -280,8 +295,10 @@ var lvl1 = {
         game.physics.arcade.overlap(badboss, bullets, hitBoss, null, this);
         game.physics.arcade.overlap(player, deathrays, enemyHitsPlayer, null, this);
 
-        // Check collision Powerup1
+        // Check collision Powerups
         game.physics.arcade.overlap(player, triples, hitPowerup, null, this);
+        game.physics.arcade.overlap(player, beam, hitPowerup1, null, this);
+
         //  Game over?
         if (!player.alive && gameOver.visible === false) {
             gameOver.visible = true;
