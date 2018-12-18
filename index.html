@@ -450,6 +450,11 @@
             //  Reset Powerups
             triples.callAll('kill');
             triplebool = false;
+            beam.callAll('kill');
+            beambool = false;
+            
+            count = 0;
+            
             //  Revive the player
             player.weaponLevel = 1;
             player.revive();
