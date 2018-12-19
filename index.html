@@ -349,10 +349,6 @@
                 music.stop();
                 score = 0;
                 scoreText.render();
-                setTimeout(function() {
-                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 30);
-                    game.camera.fade('#000000');
-                }, 5000);
                 game.state.start('lvl2');
             }
             if (bosshealth <= 0 && lvl == 2){
@@ -363,10 +359,6 @@
                 music.stop();
                 score = 0;
                 scoreText.render();
-                setTimeout(function() {
-                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 30);
-                    game.camera.fade('#000000');
-                }, 5000);
                 game.state.start('menu');
             }
         }
