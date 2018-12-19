@@ -25,7 +25,7 @@
         var villains;
         var villains1;
         var badboss;
-        var bosshealth = 500;
+        var bosshealth = 600;
         var deathrays;
         var enemyBullets;
         var starfield;
@@ -46,6 +46,8 @@
         var EnemySpacing = 1000;
         var Enemy2LaunchTimer;
         var EnemyLaunched = false;
+        var Enemy3LaunchTimer;
+        var Enemy3Spacing=1000;
         var triplebool = false;
         var beambool = false;
         var gameOver;
@@ -53,6 +55,9 @@
         var powerduration = 20;
         var lvl = 1;
         var comets;
+        var pew;
+        var villains2;
+        var Enemy3Launched = false;
 
 
         var ACCLERATION = 600;
@@ -172,6 +177,54 @@
             EnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(EnemySpacing, EnemySpacing + 1000), launchEnemy);
         }
 
+        function launch3Enemy() {
+            var startingX = game.rnd.integerInRange(250, game.width / 2);
+            var verticalSpeed = 180;
+
+            //  Launch wave
+                var enemy = villains2.getFirstExists(false);
+                if (enemy) {
+                    enemy.startingX = startingX;
+                    enemy.reset(game.width,game.rnd.integerInRange(game.height / 2 - 200, game.height /2 + 200));
+                    enemy.body.velocity.x = -verticalSpeed;
+
+                    //  Set up firing
+                    var bulletSpeed = 500;
+                    var firingDelay = 3000;
+                    enemy.bullets = 5;
+                    enemy.lastShot = 0;
+
+                    //  Update function for each enemy
+                    enemy.update = function() {
+                        //  Fire
+                        enemyBullet = pew.getFirstExists(false);
+                        if (enemyBullet &&
+                            this.alive &&
+                            this.bullets &&
+                            this.x > player.x && this.y < game.height - 50 &&
+                            game.time.now > firingDelay + this.lastShot) {
+                            this.lastShot = game.time.now;
+                            this.bullets--;
+                            enemyBullet.reset(this.x, this.y + this.height / 2);
+                            enemyBullet.damageAmount = this.damageAmount;
+                            var angle = game.physics.arcade.moveToObject(enemyBullet, player, bulletSpeed);
+                            enemyBullet.angle = game.math.radToDeg(angle);
+                            //enemys=game.add.audio('v1sound');
+                            //enemys.play();
+                        }
+
+                        //  Kill enemies once they go off screen
+                        if (this.x < 0) {
+                            this.kill();
+                        }
+                    };
+                }
+                //  Send another enemy soon
+            Enemy3LaunchTimer = game.time.events.add(game.rnd.integerInRange(Enemy3Spacing, Enemy3Spacing + 1000), launch3Enemy);
+            }
+        
+
+
         function LaunchBoss() {
             var ENEMY_SPEED = 200;
             var enemy = badboss.getFirstExists(false);
@@ -190,7 +243,7 @@
                 enemy.alive = true;
 
                 //  Set up firing
-                var bulletSpeed = 1000;
+                var bulletSpeed = 1500;
                 var firingDelay = 2000;
                 enemy.bullets = 100;
                 enemy.lastShot = 0;
@@ -209,7 +262,7 @@
                             this.alive &&
                             this.bullets &&
                             this.x > player.x && this.y < game.height - 50 &&
-                            game.time.now > firingDelay + this.lastShot) {
+                            game.time.now > firingDelay + this.lastShot ) {
                             this.lastShot = game.time.now;
                             enemyBullet.reset(this.x, this.y + this.height / 2);
                         }
@@ -288,7 +341,7 @@
             booms = game.add.audio('boom');
             booms.play();
             bosshealth = bosshealth - 50;
-            if (bosshealth <= 0) {
+            if (bosshealth <= 0 && lvl == 1) {
                 score += badboss.damageAmount * 100;
                 scoreText.render();
                 badboss.kill();
@@ -297,10 +350,24 @@
                 score = 0;
                 scoreText.render();
                 setTimeout(function() {
-                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 110);
+                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 30);
                     game.camera.fade('#000000');
                 }, 5000);
                 game.state.start('lvl2');
+            }
+            if (bosshealth <= 0 && lvl == 2){
+            	score += badboss.damageAmount * 100;
+                scoreText.render();
+                badboss.kill();
+                BossDead = true;
+                music.stop();
+                score = 0;
+                scoreText.render();
+                setTimeout(function() {
+                    wontext = game.add.bitmapText(game.world.centerX, game.world.centerY, 'Sp@Ce', 'YOU WON!', 30);
+                    game.camera.fade('#000000');
+                }, 5000);
+                game.state.start('menu');
             }
         }
 
@@ -420,20 +487,25 @@
                 launchPowerup(beam);
             }
 
-            if (count % 3 == 0 && lvl === 2) {
+            if (count % 2 == 0 && lvl === 2) {
                 launchComets();
             }
             //  Pacing
             //  Enemies come quicker as score increases
             EnemySpacing *= 0.9;
             //  Second enemies come in after a score of 1000
-            if (!EnemyLaunched && score > 4500) {
+            if (!EnemyLaunched && score > 4000) {
                 EnemyLaunched = true;
                 launch2Enemy();
                 //  Slows first enemies down now that there are other enemies
                 EnemySpacing *= 2;
-            };
-            powerduration--;
+            }
+            if ( !Enemy3Launched && score > 7000 && lvl == 2 ){
+            	Enemy3Launched = true;
+            	launch3Enemy();
+            	//  Slows first enemies down now that there are other enemies
+                EnemySpacing *= 2;
+            }
             if (!BossLaunched && score > 10000) {
                 BossLaunched = true;
                 LaunchBoss();
@@ -466,6 +538,10 @@
 
             villains1.callAll('kill');
             game.time.events.remove(Enemy2LaunchTimer);
+
+            villains2.callAll('kill');
+            pew.callAll('kill');
+            game.time.events.remove(Enemy3LaunchTimer);
             //  Reset Boss
             badboss.callAll('kill');
             deathrays.callAll('kill');
@@ -497,7 +573,7 @@
             EnemyLaunched = false;
             BossLaunched = false;
             BossDead = false;
-            bosshealth = 500;
+            bosshealth = 600;
         }
     </script>
 </body>

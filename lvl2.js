@@ -12,6 +12,8 @@ var lvl2 = {
         game.load.image('tripleshot', 'assets/power-ups/tripleshot.png');
         game.load.image('dontknow', 'assets/power-ups/dontknowyet.png');
         game.load.image('comet', 'assets/XComet02.png');
+        game.load.image('baddiesvol2','assets/enemies/enemy1.png');
+        game.load.image('EnemyBullet2','assets/bullets/bullet2.png');
 
         // Audios
         game.load.audio('bmusic', 'assets/sounds/level1.mp3');
@@ -200,6 +202,43 @@ var lvl2 = {
             });
         });
 
+        // Enemy Spaceships 3 
+        villains2 = game.add.group();
+        villains2.enableBody = true;
+        villains2.physicsBodyType = Phaser.Physics.ARCADE;
+        villains2.createMultiple(10, 'baddiesvol2');
+        villains2.setAll('anchor.x', 0.5);
+        villains2.setAll('anchor.y', 0.5);
+        villains2.setAll('scale.x', 1.5);
+        villains2.setAll('scale.y', 1);
+        villains2.forEach(function(enemy) {
+            addEnemyEmitterTrail(enemy);
+            enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
+            enemy.damageAmount = 20;
+            enemy.events.onKilled.add(function() {
+                enemy.trail.kill();
+            });
+        });
+
+        //  Enemy Spaceships's 3 bullets
+        pew = game.add.group();
+        pew.enableBody = true;
+        pew.physicsBodyType = Phaser.Physics.ARCADE;
+        pew.createMultiple(30, 'EnemyBullet2');
+        pew.callAll('crop', null, {
+            x: 90,
+            y: 0,
+            width: 90,
+            height: 70
+        });
+        pew.setAll('alpha', 0.9);
+        pew.setAll('anchor.x', 0.5);
+        pew.setAll('anchor.y', 0.5);
+        pew.setAll('outOfBoundsKill', true);
+        pew.setAll('checkWorldBounds', true);
+        pew.forEach(function(enemy) {
+            enemy.body.setSize(20, 20);
+        });
 
         //  And some controls to play the game with
         cursors = game.input.keyboard.createCursorKeys();
@@ -309,6 +348,12 @@ var lvl2 = {
         game.physics.arcade.overlap(player, villains1, shipCollide, null, this);
         game.physics.arcade.overlap(villains1, bullets, hitEnemy, null, this);
         game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
+
+         // Check collisions 3rd Enemy
+        game.physics.arcade.overlap(player, villains2, shipCollide, null, this);
+        game.physics.arcade.overlap(villains2, bullets, hitEnemy, null, this);
+        game.physics.arcade.overlap(pew, player, enemyHitsPlayer, null, this);
+
 
         // Check collision Boss
         game.physics.arcade.overlap(player, badboss, shipCollide, null, this);
