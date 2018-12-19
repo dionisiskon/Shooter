@@ -349,6 +349,9 @@
                 music.stop();
                 score = 0;
                 scoreText.render();
+                player.weaponLevel = 1;
+                beambool = false;
+                triplebool = false;
                 game.state.start('lvl2');
             }
             if (bosshealth <= 0 && lvl == 2){
