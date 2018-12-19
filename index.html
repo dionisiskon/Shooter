@@ -49,8 +49,10 @@
         var triplebool = false;
         var beambool = false;
         var gameOver;
-        var count = 0;
+        var count = 1;
         var powerduration = 20;
+        var lvl = 1;
+        var comets;
 
 
         var ACCLERATION = 600;
@@ -61,8 +63,8 @@
 
             //  We need this because the assets are on github pages
             //  Remove the next 2 lines if running locally
-            game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
-            game.load.crossOrigin = 'anonymous';
+            	game.load.baseURL = 'https://dionisiskon.github.io/Shooter/';
+            	game.load.crossOrigin = 'anonymous';
 
         }
 
@@ -245,7 +247,7 @@
             var powerups = power.getFirstExists(false);
             if (powerups) {
                 powerups.reset(game.width, game.rnd.integerInRange(game.height / 2 - 200, game.height / 2 + 200));
-                powerups.body.velocity.x = -600;
+                powerups.body.velocity.x = -450;
                 powerups.body.velocity.y = game.rnd.integerInRange(0, -100);
                 powerups.body.drag.y = 100;
             }
@@ -253,6 +255,22 @@
             powerups.update = function() {
                 if (powerups.x < 0) {
                     powerups.kill();
+                }
+            };
+        }
+
+        function launchComets() {
+            var meteors = comets.getFirstExists(false);
+            if (meteors) {
+                meteors.reset(game.rnd.integerInRange(0, game.width), 0);
+                meteors.body.velocity.x = -300;
+                meteors.body.velocity.y = 400;
+                //meteors.body.drag.y = 100;
+            }
+
+            meteors.update = function() {
+                if (meteors.y > game.height) {
+                    meteors.kill();
                 }
             };
         }
@@ -307,7 +325,7 @@
 
                     //  Set up firing
                     var bulletSpeed = 400;
-                    var firingDelay = 2000;
+                    var firingDelay = 3000;
                     enemy.bullets = 5;
                     enemy.lastShot = 0;
 
@@ -395,16 +413,21 @@
             scoreText.render();
             booms = game.add.audio('boom');
             booms.play();
-            if (count % 15 == 0 && count != 0 && triplebool == false && beambool == false) {
+            if (count % 15 == 0 && triplebool == false) {
                 launchPowerup(triples);
-            } else if (count % 30 == 0 && triplebool == false && beambool == false) {
+            }
+            if (count % 30 == 0 && beambool == false) {
                 launchPowerup(beam);
+            }
+
+            if (count % 3 == 0 && lvl === 2) {
+                launchComets();
             }
             //  Pacing
             //  Enemies come quicker as score increases
             EnemySpacing *= 0.9;
             //  Second enemies come in after a score of 1000
-            if (!EnemyLaunched && score > 1500) {
+            if (!EnemyLaunched && score > 4500) {
                 EnemyLaunched = true;
                 launch2Enemy();
                 //  Slows first enemies down now that there are other enemies
@@ -452,9 +475,11 @@
             triplebool = false;
             beam.callAll('kill');
             beambool = false;
-            
+
+            //	Reset Comets
+            comets.callAll('kill');
             count = 0;
-            
+
             //  Revive the player
             player.weaponLevel = 1;
             player.revive();

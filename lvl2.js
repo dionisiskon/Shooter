@@ -7,8 +7,11 @@ var lvl2 = {
         game.load.image('spacepirates', 'assets/enemies/enemy2.png');
         game.load.image('baddies', 'assets/enemies/enemy3.png');
         game.load.image('EnemyBullet', 'assets/bullets/blue-enemy-bullet.png');
-        game.load.image('boss', 'assets/enemies/blue-enemy.png');
-        game.load.image('deathray', 'assets/bullets/bullet2.png');
+        game.load.image('boss', 'assets/enemies/green-enemy.png');
+        game.load.image('deathray', 'assets/bullets/death-ray.png');
+        game.load.image('tripleshot', 'assets/power-ups/tripleshot.png');
+        game.load.image('dontknow', 'assets/power-ups/dontknowyet.png');
+        game.load.image('comet', 'assets/XComet02.png');
 
         // Audios
         game.load.audio('bmusic', 'assets/sounds/level1.mp3');
@@ -24,6 +27,7 @@ var lvl2 = {
     },
 
     create: function() {
+        lvl = 2;
 
         //  The scrolling starfield background
         starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
@@ -46,7 +50,7 @@ var lvl2 = {
         game.physics.enable(player, Phaser.Physics.ARCADE);
         player.body.maxVelocity.setTo(MAXSPEED, MAXSPEED);
         player.body.drag.setTo(DRAG, DRAG);
-        player.weaponLevel = 1
+        player.weaponLevel = 1;
         player.events.onKilled.add(function() {
             shipTrail.kill();
         });
@@ -124,7 +128,7 @@ var lvl2 = {
         badboss.setAll('anchor.y', 0.5);
         badboss.setAll('scale.x', 1);
         badboss.setAll('scale.y', 1);
-
+        badboss.setAll('angle', 270);
         badboss.forEach(function(enemy) {
             addEnemyEmitterTrail(enemy);
             enemy.body.setSize(enemy.width * 1, enemy.height * 1);
@@ -138,7 +142,7 @@ var lvl2 = {
         deathrays = game.add.group();
         deathrays.enableBody = true;
         deathrays.physicsBodyType = Phaser.Physics.ARCADE;
-        deathrays.createMultiple(500, 'deathray');
+        deathrays.createMultiple(100, 'deathray');
         deathrays.callAll('crop', null, {
             x: 90,
             y: 0,
@@ -154,6 +158,47 @@ var lvl2 = {
             enemy.body.setSize(20, 20);
         });
 
+        // Triple shot Power up
+        triples = game.add.group();
+        triples.enableBody = true;
+        triples.physicsBodyType = Phaser.Physics.ARCADE;
+        triples.createMultiple(10, 'tripleshot');
+        triples.setAll('anchor.x', 0.5);
+        triples.setAll('anchor.y', 0.5);
+        triples.setAll('scale.x', 0.75);
+        triples.setAll('scale.y', 0.75);
+        triples.setAll('outOfBoundsKill', true);
+        triples.setAll('checkWorldBounds', true);
+
+        // Triple shot Power up
+        beam = game.add.group();
+        beam.enableBody = true;
+        beam.physicsBodyType = Phaser.Physics.ARCADE;
+        beam.createMultiple(10, 'dontknow');
+        beam.setAll('anchor.x', 0.5);
+        beam.setAll('anchor.y', 0.5);
+        beam.setAll('scale.x', 0.6);
+        beam.setAll('scale.y', 0.6);
+        beam.setAll('outOfBoundsKill', true);
+        beam.setAll('checkWorldBounds', true);
+
+        //  Power-ups
+        comets = game.add.group();
+        comets.enableBody = true;
+        comets.physicsBodyType = Phaser.Physics.ARCADE;
+        comets.createMultiple(20, 'comet');
+        comets.setAll('anchor.x', 0.5);
+        comets.setAll('anchor.y', 0.5);
+        comets.setAll('scale.x', 0.25);
+        comets.setAll('scale.y', 0.25);
+        comets.forEach(function(enemy) {
+            addEnemyEmitterTrail(enemy);
+            enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
+            enemy.damageAmount = 20;
+            enemy.events.onKilled.add(function() {
+                enemy.trail.kill();
+            });
+        });
 
 
         //  And some controls to play the game with
@@ -255,21 +300,28 @@ var lvl2 = {
         shipTrail.y = player.y;
         shipTrail.x = player.x - 20;
 
-        //  Check collisions
+        //  Check collisions 1st Enemy
         game.physics.arcade.overlap(player, villains, shipCollide, null, this);
         game.physics.arcade.overlap(villains, bullets, hitEnemy, null, this);
 
 
-        // Check collisions 2 
+        // Check collisions 2nd Enemy
         game.physics.arcade.overlap(player, villains1, shipCollide, null, this);
         game.physics.arcade.overlap(villains1, bullets, hitEnemy, null, this);
+        game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
 
         // Check collision Boss
         game.physics.arcade.overlap(player, badboss, shipCollide, null, this);
         game.physics.arcade.overlap(badboss, bullets, hitBoss, null, this);
-
         game.physics.arcade.overlap(player, deathrays, enemyHitsPlayer, null, this);
-        game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
+
+        // Check collision Powerups
+        game.physics.arcade.overlap(player, triples, hitPowerup, null, this);
+        game.physics.arcade.overlap(player, beam, hitPowerup1, null, this);
+
+        // Check collision Comets
+        game.physics.arcade.overlap(player, comets, shipCollide, null, this);
+
         //  Game over?
         if (!player.alive && gameOver.visible === false) {
             gameOver.visible = true;
